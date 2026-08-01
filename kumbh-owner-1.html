@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kumbh Mela Medicinal Help — Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#142234; --sand:#f6eedc; --paper:#fbf7ed;
+    --marigold:#e8871e; --marigold-deep:#c96a0f;
+    --vermillion:#b23a2e; --teal:#2f6b62;
+    --line:rgba(20,34,52,0.14); --ink-soft:rgba(20,34,52,0.62);
+    --radius:14px; --shadow:0 12px 28px rgba(20,34,52,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Work Sans',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;position:relative;overflow-x:hidden;}
+  h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:inherit;}
+
+  .bg-ripples{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .bg-ripples svg{position:absolute;top:-10%;right:-10%;width:60vmax;height:60vmax;opacity:0.5;}
+  .bg-ripples circle{fill:none;stroke:var(--ink);stroke-opacity:0.06;}
+
+  .alert-banner{display:none;position:sticky;top:0;z-index:50;background:var(--vermillion);color:#fff;padding:12px 20px;font-weight:700;font-size:14px;align-items:center;justify-content:space-between;}
+  .alert-banner.is-active{display:flex;animation:bannerFlash 1s ease-in-out infinite;}
+  @keyframes bannerFlash{0%,100%{background:var(--vermillion);}50%{background:#8a2c22;}}
+  .alert-banner button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;}
+
+  .site-header{position:relative;z-index:1;background:var(--ink);color:var(--paper);padding:28px 20px 34px;}
+  .brand{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+  .brand-mark{width:46px;height:46px;flex:none;}
+  .brand-text .eyebrow{display:block;font-size:12px;color:var(--marigold);text-transform:uppercase;margin-bottom:4px;}
+  .brand-text h1{font-size:22px;font-weight:600;line-height:1.15;}
+  .brand-text .sub{font-size:13px;color:rgba(251,247,237,0.7);margin-top:4px;}
+
+  main.page{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:24px 20px 60px;}
+
+  .tab-bar{display:flex;gap:0;margin-bottom:20px;border-bottom:1.5px solid var(--line);flex-wrap:wrap;}
+  .tab-btn{background:none;border:none;padding:10px 4px;margin-right:20px;font-size:14px;font-weight:600;color:var(--ink-soft);border-bottom:2.5px solid transparent;position:relative;top:1.5px;}
+  .tab-btn.is-active{color:var(--ink);border-bottom-color:var(--marigold);}
+  .count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--vermillion);color:#fff;font-size:10.5px;font-weight:700;margin-left:5px;}
+  .tab-panel{display:none;}
+  .tab-panel.is-active{display:block;}
+
+  .surface{background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+
+  .detail-card{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .detail-card.sos{border-color:var(--vermillion);background:rgba(178,58,46,0.05);}
+  .detail-card.accepted{border-left:5px solid var(--teal);}
+  .detail-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .detail-top .who{font-size:16px;font-weight:700;}
+  .detail-top .when{font-size:11.5px;color:var(--ink-soft);}
+  .health-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-left:8px;}
+  .health-tag.critical{background:rgba(178,58,46,0.16);color:var(--vermillion);}
+  .health-tag.moderate{background:rgba(232,135,30,0.16);color:var(--marigold-deep);}
+  .health-tag.low{background:rgba(47,107,98,0.16);color:var(--teal);}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:13px;margin-bottom:10px;}
+  .detail-grid .k{color:var(--ink-soft);font-size:11.5px;text-transform:uppercase;display:block;}
+  .detail-desc{background:rgba(20,34,52,0.04);border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;}
+  .card-actions{display:flex;gap:8px;margin-top:12px;}
+  .empty-note{color:var(--ink-soft);font-size:13.5px;padding:20px 0;text-align:center;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:10px;font-size:14.5px;font-weight:600;border:none;}
+  .btn--primary{background:var(--marigold);color:#fff;}
+  .btn--primary:hover{background:var(--marigold-deep);}
+  .btn--ghost{background:none;border:1.5px solid var(--line);color:var(--ink);}
+  .btn--ghost:hover{border-color:var(--ink);}
+  .btn--teal{background:var(--teal);color:#fff;}
+  .btn--sm{padding:8px 14px;font-size:13px;}
+
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field input{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:15px;font-family:inherit;color:var(--ink);}
+  .field input:focus,button:focus-visible{outline:3px solid rgba(232,135,30,0.45);outline-offset:1px;}
+  .settings-form{max-width:380px;}
+  .saved-note{color:var(--teal);font-size:13px;margin-top:8px;display:none;}
+  .saved-note.is-shown{display:block;}
+
+  .search-wrap{margin-bottom:16px;}
+  .search-wrap input{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;font-family:inherit;color:var(--ink);}
+  .search-wrap input:focus{outline:3px solid rgba(232,135,30,0.45);outline-offset:1px;}
+
+  .status-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-left:8px;}
+  .status-tag.on_the_way{background:rgba(232,135,30,0.16);color:var(--marigold-deep);}
+  .status-tag.completed{background:rgba(20,34,52,0.10);color:var(--ink-soft);}
+
+  .note-row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .note-row label{font-size:11px;text-transform:uppercase;color:var(--ink-soft);font-weight:600;display:block;margin-bottom:6px;}
+  .note-row .note-input-row{display:flex;gap:8px;}
+  .note-row input[type="text"]{flex:1;padding:9px 11px;border-radius:8px;border:1.5px solid var(--line);font-size:13px;font-family:inherit;color:var(--ink);background:var(--paper);}
+  .note-row .note-readonly{font-size:13.5px;color:var(--ink);}
+
+  footer{position:relative;z-index:1;text-align:center;font-size:11.5px;color:var(--ink-soft);padding:10px 20px 30px;}
+</style>
+</head>
+<body>
+
+<div class="bg-ripples" aria-hidden="true">
+  <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="40"/><circle cx="100" cy="100" r="65"/><circle cx="100" cy="100" r="90"/></svg>
+</div>
+
+<div class="alert-banner" id="alertBanner">
+  <span>🚨 New SOS request received — check the SOS tab.</span>
+  <button id="dismissAlert">Dismiss</button>
+</div>
+
+<header class="site-header">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="9" fill="none" stroke="#e8871e" stroke-width="2"/>
+      <circle cx="24" cy="24" r="16" fill="none" stroke="#e8871e" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="24" cy="24" r="22.5" fill="none" stroke="#e8871e" stroke-width="1" opacity="0.35"/>
+      <path d="M24 17v14M18 24h12" stroke="#fbf7ed" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-text">
+      <span class="eyebrow mono">कुंभ मेला · डिस्पैच</span>
+      <h1>Dispatch Control</h1>
+      <p class="sub">Every request from the patient site lands here.</p>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="tab-bar">
+    <button class="tab-btn is-active" data-tab="requested" type="button">Requested <span class="count-badge" id="countRequested" hidden>0</span></button>
+    <button class="tab-btn" data-tab="sos" type="button">SOS <span class="count-badge" id="countSos" hidden>0</span></button>
+    <button class="tab-btn" data-tab="accepted" type="button">Accepted <span class="count-badge" id="countAccepted" hidden>0</span></button>
+    <button class="tab-btn" data-tab="completed" type="button">Completed <span class="count-badge" id="countCompleted" hidden>0</span></button>
+    <button class="tab-btn" data-tab="settings" type="button">Settings</button>
+  </div>
+
+  <div class="search-wrap" id="searchWrap">
+    <input type="text" id="searchBox" placeholder="Search by name, phone, or condition…">
+  </div>
+
+  <div class="tab-panel is-active" data-tab="requested"><div id="listRequested"></div></div>
+  <div class="tab-panel" data-tab="sos"><div id="listSos"></div></div>
+  <div class="tab-panel" data-tab="accepted"><div id="listAccepted"></div></div>
+  <div class="tab-panel" data-tab="completed"><div id="listCompleted"></div></div>
+  <div class="tab-panel" data-tab="settings">
+    <div class="surface settings-form">
+      <h2 class="panel-title" style="font-size:20px;margin-bottom:6px;">Team contact number</h2>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 18px;">This number is shown to a pilgrim once you accept their request, so they can also reach you directly.</p>
+      <div class="field">
+        <label for="ownerPhoneInput">Team number</label>
+        <input type="tel" id="ownerPhoneInput" placeholder="10-digit number" inputmode="numeric">
+      </div>
+      <button class="btn btn--primary" id="saveOwnerPhone">Save number</button>
+      <p class="saved-note" id="savedNote">Saved ✓</p>
+    </div>
+  </div>
+</main>
+
+<footer>Kumbh Mela Medicinal Help · Dispatch view — school project demo, not a real emergency service.</footer>
+
+<script>
+(function(){
+  const DB_KEY = "kumbh_mela_db_v1";
+  function dbRead(){
+    try{
+      const raw = localStorage.getItem(DB_KEY);
+      if(!raw) return { requests: [], ownerSettings: { phone: "" } };
+      const p = JSON.parse(raw);
+      if(!Array.isArray(p.requests)) p.requests = [];
+      if(!p.ownerSettings) p.ownerSettings = { phone:"" };
+      return p;
+    }catch(e){ return { requests: [], ownerSettings: { phone: "" } }; }
+  }
+  function dbWrite(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  function updateRequest(id, changes){
+    const db = dbRead();
+    const r = db.requests.find(x => x.id === id);
+    if(!r) return;
+    Object.assign(r, changes, { updatedAt: Date.now() });
+    dbWrite(db);
+  }
+  function setOwnerPhone(phone){ const db = dbRead(); db.ownerSettings.phone = phone; dbWrite(db); }
+
+  function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function timeAgo(ts){
+    const s = Math.floor((Date.now()-ts)/1000);
+    if(s < 60) return s + "s ago";
+    if(s < 3600) return Math.floor(s/60) + "m ago";
+    return Math.floor(s/3600) + "h ago";
+  }
+  function mapLink(loc){
+    if(!loc || loc === "skipped") return "Not shared";
+    return '<a href="https://maps.google.com/?q='+loc.lat+','+loc.lng+'" target="_blank" rel="noopener">'+loc.lat.toFixed(4)+', '+loc.lng.toFixed(4)+' (open map)</a>';
+  }
+  function cardHtml(r){
+    const isSos = r.type === "sos";
+    const cardClasses = "detail-card" + (isSos ? " sos" : "") + ((r.status === "accepted" || r.status === "on_the_way") ? " accepted" : "");
+    const p = r.patient || {};
+    const healthTag = p.health ? '<span class="health-tag '+p.health+'">'+p.health+'</span>' : "";
+    const statusTag = r.status === "on_the_way" ? '<span class="status-tag on_the_way">On the way</span>'
+      : r.status === "completed" ? '<span class="status-tag completed">Completed</span>' : "";
+
+    let actions = "";
+    if(r.status === "pending"){
+      actions = '<div class="card-actions"><button class="btn btn--teal btn--sm" data-action="accept" data-id="'+r.id+'">Accept</button><button class="btn btn--ghost btn--sm" data-action="decline" data-id="'+r.id+'">Decline</button></div>';
+    } else if(r.status === "accepted"){
+      actions = '<div class="card-actions"><button class="btn btn--primary btn--sm" data-action="on_the_way" data-id="'+r.id+'">Mark on the way</button><button class="btn btn--teal btn--sm" data-action="completed" data-id="'+r.id+'">Mark completed</button></div>';
+    } else if(r.status === "on_the_way"){
+      actions = '<div class="card-actions"><button class="btn btn--teal btn--sm" data-action="completed" data-id="'+r.id+'">Mark completed</button></div>';
+    }
+
+    let noteRow = "";
+    if(r.status === "accepted" || r.status === "on_the_way"){
+      noteRow = '<div class="note-row"><label for="note_'+r.id+'">Note visible to the pilgrim (e.g. "team is 5 min away")</label>' +
+        '<div class="note-input-row"><input type="text" id="note_'+r.id+'" value="'+escapeHtml(r.note||"")+'" placeholder="Short status update…" maxlength="120">' +
+        '<button class="btn btn--ghost btn--sm" data-note-save="'+r.id+'">Save</button></div></div>';
+    } else if(r.status === "completed" && r.note){
+      noteRow = '<div class="note-row"><label>Last note sent</label><div class="note-readonly">'+escapeHtml(r.note)+'</div></div>';
+    }
+
+    return '<div class="'+cardClasses+'">' +
+      '<div class="detail-top"><div class="who">'+escapeHtml(p.name||"Unnamed patient")+healthTag+statusTag+'</div><div class="when mono">'+timeAgo(r.createdAt)+'</div></div>' +
+      '<div class="detail-grid">' +
+        '<div><span class="k">Request type</span>'+r.type.toUpperCase()+'</div>' +
+        '<div><span class="k">Date of birth</span>'+escapeHtml(p.dob||"—")+'</div>' +
+        '<div><span class="k">Gender</span>'+escapeHtml(p.gender||"—")+'</div>' +
+        '<div><span class="k">Phone</span><a href="tel:'+escapeHtml(r.phone)+'">'+escapeHtml(r.phone||"—")+'</a></div>' +
+        '<div><span class="k">Location</span>'+mapLink(r.location)+'</div>' +
+      '</div>' +
+      (p.disease ? '<div class="detail-desc"><strong>Condition:</strong> '+escapeHtml(p.disease)+'</div>' : '') +
+      (p.surroundings ? '<div class="detail-desc"><strong>Surroundings:</strong> '+escapeHtml(p.surroundings)+'</div>' : '') +
+      actions + noteRow +
+    '</div>';
+  }
+  function emptyHtml(msg){ return '<p class="empty-note">'+msg+'</p>'; }
+  function matchesSearch(r, term){
+    if(!term) return true;
+    const p = r.patient || {};
+    const hay = ((p.name||"")+" "+(r.phone||"")+" "+(p.disease||"")).toLowerCase();
+    return hay.includes(term);
+  }
+
+  let hasRenderedOnce = false;
+  let knownSosIds = new Set();
+
+  const searchBox = document.getElementById("searchBox");
+  const searchWrap = document.getElementById("searchWrap");
+  const ownerPhoneInput = document.getElementById("ownerPhoneInput");
+
+  function render(){
+    const db = dbRead();
+    const term = searchBox.value.trim().toLowerCase();
+    const pending = db.requests.filter(r => r.status === "pending" && r.type !== "sos" && matchesSearch(r, term));
+    const sos = db.requests.filter(r => r.status === "pending" && r.type === "sos" && matchesSearch(r, term));
+    const accepted = db.requests.filter(r => (r.status === "accepted" || r.status === "on_the_way") && matchesSearch(r, term));
+    const completed = db.requests.filter(r => r.status === "completed" && matchesSearch(r, term));
+
+    // count badges always reflect the unfiltered totals so nothing looks "missing" while searching
+    const allSos = db.requests.filter(r => r.status === "pending" && r.type === "sos");
+    let newSos = false;
+    allSos.forEach(r => { if(!knownSosIds.has(r.id)){ knownSosIds.add(r.id); if(hasRenderedOnce) newSos = true; } });
+    if(newSos) triggerSosAlert();
+    hasRenderedOnce = true;
+
+    setCount("countRequested", db.requests.filter(r => r.status === "pending" && r.type !== "sos").length);
+    setCount("countSos", allSos.length);
+    setCount("countAccepted", db.requests.filter(r => r.status === "accepted" || r.status === "on_the_way").length);
+    setCount("countCompleted", db.requests.filter(r => r.status === "completed").length);
+
+    document.getElementById("listRequested").innerHTML = pending.length ? pending.map(cardHtml).join("") : emptyHtml(term ? "No matching pending requests." : "No pending requests.");
+    document.getElementById("listSos").innerHTML = sos.length ? sos.map(cardHtml).join("") : emptyHtml(term ? "No matching SOS requests." : "No active SOS.");
+    document.getElementById("listAccepted").innerHTML = accepted.length ? accepted.map(cardHtml).join("") : emptyHtml(term ? "No matching accepted requests." : "Nothing accepted yet.");
+    document.getElementById("listCompleted").innerHTML = completed.length ? completed.map(cardHtml).join("") : emptyHtml(term ? "No matching completed requests." : "Nothing completed yet.");
+
+    // don't stomp on the field while the owner is actively typing in it — this was overwriting keystrokes every 2s
+    if(document.activeElement !== ownerPhoneInput) ownerPhoneInput.value = db.ownerSettings.phone || "";
+
+    bindActions();
+  }
+  function setCount(id, n){ const el = document.getElementById(id); el.hidden = n === 0; el.textContent = n; }
+
+  function bindActions(){
+    document.querySelectorAll('[data-action="accept"]').forEach(btn => btn.addEventListener("click", () => { updateRequest(btn.dataset.id, { status: "accepted" }); render(); }));
+    document.querySelectorAll('[data-action="decline"]').forEach(btn => btn.addEventListener("click", () => { updateRequest(btn.dataset.id, { status: "declined" }); render(); }));
+    document.querySelectorAll('[data-action="on_the_way"]').forEach(btn => btn.addEventListener("click", () => { updateRequest(btn.dataset.id, { status: "on_the_way" }); render(); }));
+    document.querySelectorAll('[data-action="completed"]').forEach(btn => btn.addEventListener("click", () => { updateRequest(btn.dataset.id, { status: "completed" }); render(); }));
+    document.querySelectorAll('[data-note-save]').forEach(btn => btn.addEventListener("click", () => {
+      const id = btn.dataset.noteSave;
+      const input = document.getElementById("note_" + id);
+      updateRequest(id, { note: input.value.trim() });
+      render();
+    }));
+  }
+
+  function beep(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = "square"; o.frequency.value = 880;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      o.start(); o.stop(ctx.currentTime + 0.35);
+    }catch(e){}
+  }
+  let sosAlertInterval = null;
+  function triggerSosAlert(){
+    document.getElementById("alertBanner").classList.add("is-active");
+    beep();
+    if(!sosAlertInterval) sosAlertInterval = setInterval(beep, 4000);
+  }
+  document.getElementById("dismissAlert").addEventListener("click", () => {
+    document.getElementById("alertBanner").classList.remove("is-active");
+    if(sosAlertInterval){ clearInterval(sosAlertInterval); sosAlertInterval = null; }
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("is-active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    document.querySelector('.tab-panel[data-tab="'+btn.dataset.tab+'"]').classList.add("is-active");
+    searchWrap.style.display = btn.dataset.tab === "settings" ? "none" : "block";
+    searchBox.value = "";
+    render();
+  }));
+  searchBox.addEventListener("input", render);
+
+  document.getElementById("saveOwnerPhone").addEventListener("click", () => {
+    setOwnerPhone(ownerPhoneInput.value.trim());
+    const note = document.getElementById("savedNote");
+    note.classList.add("is-shown");
+    setTimeout(() => note.classList.remove("is-shown"), 2000);
+  });
+
+  window.addEventListener("storage", (e) => { if(e.key === DB_KEY) render(); });
+  setInterval(render, 2000);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kumbh Mela Medicinal Help</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#142234; --sand:#f6eedc; --paper:#fbf7ed;
+    --marigold:#e8871e; --marigold-deep:#c96a0f;
+    --vermillion:#b23a2e; --teal:#2f6b62;
+    --line:rgba(20,34,52,0.14); --ink-soft:rgba(20,34,52,0.62);
+    --radius:14px; --shadow:0 12px 28px rgba(20,34,52,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Work Sans',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;position:relative;overflow-x:hidden;}
+  h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:inherit;}
+
+  .bg-ripples{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .bg-ripples svg{position:absolute;top:-10%;right:-10%;width:60vmax;height:60vmax;opacity:0.5;}
+  .bg-ripples circle{fill:none;stroke:var(--ink);stroke-opacity:0.06;}
+
+  .site-header{position:relative;z-index:1;background:var(--ink);color:var(--paper);padding:28px 20px 34px;}
+  .brand{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+  .brand-mark{width:46px;height:46px;flex:none;}
+  .brand-text .eyebrow{display:block;font-size:12px;color:var(--marigold);text-transform:uppercase;margin-bottom:4px;}
+  .brand-text h1{font-size:22px;font-weight:600;line-height:1.15;}
+  .brand-text .sub{font-size:13px;color:rgba(251,247,237,0.7);margin-top:4px;}
+
+  .topbar{max-width:760px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:flex-end;position:relative;z-index:1;}
+  .link-btn{background:none;border:none;color:var(--ink-soft);font-size:13px;font-weight:600;text-decoration:underline;padding:6px 2px;}
+
+  .wizard{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:start;}
+  @media (max-width:720px){ .wizard{grid-template-columns:1fr;} }
+
+  .step-rail ol{list-style:none;margin:0;padding:0;position:sticky;top:20px;}
+  .step-rail li{position:relative;padding-bottom:26px;padding-left:2px;}
+  .step-rail li:not(:last-child)::before{content:"";position:absolute;left:15px;top:32px;bottom:-2px;width:2px;background:var(--line);}
+  .rail-btn{display:flex;align-items:flex-start;gap:10px;background:none;border:none;padding:0;text-align:left;width:100%;opacity:0.4;}
+  .rail-btn .num{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--ink);background:var(--paper);}
+  .rail-btn .lbl{padding-top:6px;}
+  .rail-btn .lbl .tag{display:block;font-size:10px;color:var(--ink-soft);margin-bottom:2px;}
+  .rail-btn .lbl .name{font-size:13px;font-weight:600;}
+  li.is-done .rail-btn{opacity:0.85;cursor:pointer;}
+  li.is-done .num{background:var(--teal);border-color:var(--teal);color:#fff;}
+  li.is-current .rail-btn{opacity:1;}
+  li.is-current .num{background:var(--marigold);border-color:var(--marigold);color:#fff;}
+  @media (max-width:720px){ .step-rail ol{position:static;display:flex;gap:6px;padding-bottom:8px;overflow-x:auto;} .step-rail li{padding-bottom:0;flex:none;} .step-rail li::before{display:none;} .rail-btn .lbl{display:none;} }
+
+  .panel-wrap{position:relative;}
+  .step-panel{background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px 24px;box-shadow:var(--shadow);display:none;}
+  .step-panel.is-active{display:block;animation:rise 0.35s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion:reduce){ .step-panel.is-active{animation:none;} }
+
+  .panel-eyebrow{font-size:11px;color:var(--marigold-deep);text-transform:uppercase;margin-bottom:6px;}
+  .panel-title{font-size:20px;font-weight:600;margin-bottom:4px;}
+  .panel-hint{font-size:13px;color:var(--ink-soft);margin-bottom:20px;}
+
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field input,.field textarea{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:15px;font-family:inherit;color:var(--ink);}
+  .field input:focus,.field textarea:focus,button:focus-visible{outline:3px solid rgba(232,135,30,0.45);outline-offset:1px;}
+  .field.has-error input,.field.has-error textarea{border-color:var(--vermillion);}
+  .error-msg{display:none;color:var(--vermillion);font-size:12.5px;margin-top:5px;}
+  .field.has-error .error-msg{display:block;}
+  .important-note{color:var(--vermillion);font-size:12.5px;font-weight:700;margin:0 0 8px;}
+
+  .pill-group{display:flex;gap:10px;}
+  .pill{flex:1;padding:12px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;font-weight:600;text-align:center;}
+  .pill.is-selected{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  .health-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+  .health-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);text-align:left;width:100%;}
+  .health-card .dot{width:12px;height:12px;border-radius:50%;flex:none;}
+  .health-card .body strong{display:block;font-size:15px;}
+  .health-card .body span{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .health-card[data-value="critical"] .dot{background:var(--vermillion);}
+  .health-card[data-value="moderate"] .dot{background:var(--marigold);}
+  .health-card[data-value="low"] .dot{background:var(--teal);}
+  .health-card.is-selected{border-width:2px;}
+  .health-card[data-value="critical"].is-selected{border-color:var(--vermillion);background:rgba(178,58,46,0.06);}
+  .health-card[data-value="moderate"].is-selected{border-color:var(--marigold);background:rgba(232,135,30,0.08);}
+  .health-card[data-value="low"].is-selected{border-color:var(--teal);background:rgba(47,107,98,0.07);}
+
+  .disease-field{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);display:none;}
+  .disease-field.is-shown{display:block;}
+  .voice-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .voice-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink-soft);}
+  .voice-btn:hover{border-color:var(--marigold);color:var(--marigold);}
+  .voice-btn.is-listening{background:var(--vermillion);border-color:var(--vermillion);color:#fff;animation:micPulse 1s ease-in-out infinite;}
+  @keyframes micPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+  .voice-label{font-size:12px;color:var(--ink-soft);}
+
+  .sos-btn{display:none;width:100%;padding:18px 20px;margin-top:14px;border-radius:14px;border:2.5px solid var(--vermillion);background:var(--vermillion);color:#fff;font-size:16px;font-weight:700;text-align:center;animation:sosPulse 1.4s ease-in-out infinite;}
+  .sos-btn.is-visible{display:block;}
+  .sos-btn .sos-sub{font-size:12px;font-weight:500;opacity:0.9;display:block;margin-top:4px;}
+  @keyframes sosPulse{0%,100%{box-shadow:0 0 0 0 rgba(178,58,46,0.5);}50%{box-shadow:0 0 0 10px rgba(178,58,46,0);}}
+  @media (prefers-reduced-motion:reduce){ .sos-btn{animation:none;} }
+
+  .loc-option{border:1.5px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--paper);}
+  .loc-option h3{font-size:15px;margin-bottom:4px;}
+  .loc-status{font-size:13px;margin-top:10px;}
+  .loc-status.ok{color:var(--teal);font-weight:600;}
+  .loc-status.err{color:var(--vermillion);font-weight:600;}
+  .skip-line{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  .skip-line button{background:none;border:none;text-decoration:underline;color:var(--ink);padding:0;font-size:inherit;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:10px;font-size:14.5px;font-weight:600;border:none;}
+  .btn--primary{background:var(--marigold);color:#fff;}
+  .btn--primary:hover{background:var(--marigold-deep);}
+  .btn--ghost{background:none;border:1.5px solid var(--line);color:var(--ink);}
+  .btn--ghost:hover{border-color:var(--ink);}
+  .btn--danger{background:var(--vermillion);color:#fff;}
+  .btn--block{width:100%;}
+  .panel-actions{display:flex;justify-content:space-between;gap:10px;margin-top:22px;}
+
+  .request-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+  @media (max-width:480px){ .request-grid{grid-template-columns:1fr;} }
+  .request-btn{position:relative;border-radius:14px;padding:22px 16px;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;overflow:hidden;}
+  .request-btn .ripple{position:absolute;inset:0;border-radius:50%;margin:auto;border:2px solid rgba(255,255,255,0.5);width:100%;height:100%;animation:ripple 2.6s ease-out infinite;opacity:0;}
+  @keyframes ripple{0%{transform:scale(0.6);opacity:0.5;}100%{transform:scale(1.5);opacity:0;}}
+  @media (prefers-reduced-motion:reduce){ .request-btn .ripple{animation:none;display:none;} }
+  .request-btn.medicine{background:var(--teal);}
+  .request-btn.ambulance{background:var(--vermillion);}
+  .request-btn svg{width:30px;height:30px;position:relative;z-index:1;}
+  .request-btn strong{font-size:15px;position:relative;z-index:1;}
+  .request-btn span{font-size:12px;opacity:0.85;position:relative;z-index:1;}
+
+  .confirm-panel{background:var(--ink);color:var(--paper);border-radius:var(--radius);padding:34px 26px;text-align:center;box-shadow:var(--shadow);}
+  .confirm-panel .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,135,30,0.18);color:var(--marigold);padding:6px 12px;border-radius:20px;font-size:12px;margin-bottom:16px;}
+  .confirm-panel .badge .blip{width:7px;height:7px;border-radius:50%;background:var(--marigold);animation:blip 1.3s ease-in-out infinite;}
+  @keyframes blip{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  .confirm-panel h2{font-size:22px;margin-bottom:8px;}
+  .confirm-panel p.lede{font-size:14px;color:rgba(251,247,237,0.75);margin-bottom:22px;}
+  .summary-card{background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.14);border-radius:12px;padding:16px;text-align:left;margin-bottom:22px;}
+  .summary-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(251,247,237,0.08);}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row .k{color:rgba(251,247,237,0.6);}
+  .summary-row .v{font-weight:600;text-align:right;}
+
+  .mine-wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:16px 20px 60px;display:none;}
+  .mine-wrap.is-active{display:block;}
+  .mine-wrap .step-panel{display:block;}
+  .request-card{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;}
+  .request-card.pending{border-left:4px solid var(--marigold);}
+  .request-card.accepted{border-left:4px solid var(--teal);}
+  .request-card.on_the_way{border-left:4px solid var(--marigold-deep);}
+  .request-card.completed{border-left:4px solid var(--ink-soft);}
+  .request-card.declined{border-left:4px solid var(--vermillion);}
+  .request-card.sos{background:rgba(178,58,46,0.05);}
+  .request-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .status-badge{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:20px;}
+  .status-badge.pending{background:rgba(232,135,30,0.16);color:var(--marigold-deep);}
+  .status-badge.accepted{background:rgba(47,107,98,0.16);color:var(--teal);}
+  .status-badge.on_the_way{background:rgba(232,135,30,0.16);color:var(--marigold-deep);}
+  .status-badge.completed{background:rgba(20,34,52,0.10);color:var(--ink-soft);}
+  .status-badge.declined{background:rgba(178,58,46,0.16);color:var(--vermillion);}
+  .owner-contact{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13.5px;font-weight:600;color:var(--teal);}
+  .team-note{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink);}
+  .team-note strong{color:var(--marigold-deep);}
+  .empty-note{color:var(--ink-soft);font-size:13.5px;padding:20px 0;text-align:center;}
+
+  .status-alert-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:1100;background:var(--teal);color:#fff;padding:14px 20px;font-weight:700;font-size:14px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 14px rgba(0,0,0,0.2);}
+  .status-alert-banner.is-active{display:flex;animation:bannerFlash2 1s ease-in-out infinite;}
+  @keyframes bannerFlash2{0%,100%{background:var(--teal);}50%{background:#1f4b44;}}
+  .status-alert-banner button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;flex:none;}
+
+  .overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(20,34,52,0.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;}
+  .overlay.is-active{display:flex;}
+  .modal{background:var(--paper);border-radius:18px;padding:28px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.3);}
+  .modal h2{color:var(--vermillion);font-size:22px;margin-bottom:8px;}
+  .modal p{font-size:14px;color:var(--ink-soft);margin-bottom:18px;}
+  .modal .field{text-align:left;}
+  .sos-progress-list{text-align:left;font-size:13.5px;margin-bottom:18px;padding:0;}
+  .sos-progress-list li{list-style:none;padding:6px 0;color:var(--ink-soft);}
+  .sos-progress-list li.is-active{color:var(--ink);font-weight:600;}
+  .sos-progress-list li.is-done{color:var(--teal);}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all 0.3s;z-index:1000;}
+  .toast.is-shown{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer{position:relative;z-index:1;text-align:center;font-size:11.5px;color:var(--ink-soft);padding:10px 20px 30px;}
+</style>
+</head>
+<body>
+
+<div class="bg-ripples" aria-hidden="true">
+  <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="40"/><circle cx="100" cy="100" r="65"/><circle cx="100" cy="100" r="90"/></svg>
+</div>
+
+<div class="status-alert-banner" id="statusAlertBanner">
+  <span id="statusAlertText"></span>
+  <button id="statusAlertDismiss">Dismiss</button>
+</div>
+
+<header class="site-header">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="9" fill="none" stroke="#e8871e" stroke-width="2"/>
+      <circle cx="24" cy="24" r="16" fill="none" stroke="#e8871e" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="24" cy="24" r="22.5" fill="none" stroke="#e8871e" stroke-width="1" opacity="0.35"/>
+      <path d="M24 17v14M18 24h12" stroke="#fbf7ed" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-text">
+      <span class="eyebrow mono">कुंभ मेला · मेडिकल सहायता</span>
+      <h1>Kumbh Mela Medicinal Help</h1>
+      <p class="sub">Get medicine or an ambulance sent to your exact spot.</p>
+    </div>
+  </div>
+</header>
+
+<div class="topbar">
+  <button class="link-btn" id="toMineBtn" type="button">My requests →</button>
+</div>
+
+<!-- ===================== NEW REQUEST FLOW ===================== -->
+<main class="wizard" id="wizardWrap">
+  <nav class="step-rail" aria-label="Form progress">
+    <ol id="railList">
+      <li data-step="1"><button class="rail-btn" type="button" data-goto="1"><span class="num mono">01</span><span class="lbl"><span class="tag mono">Sector 01</span><span class="name">Patient details</span></span></button></li>
+      <li data-step="2"><button class="rail-btn" type="button" data-goto="2"><span class="num mono">02</span><span class="lbl"><span class="tag mono">Sector 02</span><span class="name">Condition</span></span></button></li>
+      <li data-step="3"><button class="rail-btn" type="button" data-goto="3"><span class="num mono">03</span><span class="lbl"><span class="tag mono">Sector 03</span><span class="name">Phone number</span></span></button></li>
+      <li data-step="4"><button class="rail-btn" type="button" data-goto="4"><span class="num mono">04</span><span class="lbl"><span class="tag mono">Sector 04</span><span class="name">Location</span></span></button></li>
+      <li data-step="5"><button class="rail-btn" type="button" data-goto="5"><span class="num mono">05</span><span class="lbl"><span class="tag mono">Sector 05</span><span class="name">Send request</span></span></button></li>
+    </ol>
+  </nav>
+
+  <div class="panel-wrap" aria-live="polite">
+
+    <!-- STEP 1: Patient info -->
+    <section class="step-panel is-active" data-step="1">
+      <div class="panel-eyebrow mono">Step 1 of 5</div>
+      <h2 class="panel-title">Who needs help?</h2>
+      <p class="panel-hint">These details go to the medical team along with your request.</p>
+      <div class="field" id="field-name">
+        <label for="fullName">Full name</label>
+        <input type="text" id="fullName" placeholder="e.g. Ramesh Kumar Yadav" autocomplete="name">
+        <div class="error-msg">Enter the patient's full name.</div>
+      </div>
+      <div class="field" id="field-dob">
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob">
+        <div class="error-msg">Enter a date of birth.</div>
+      </div>
+      <div class="field" id="field-gender">
+        <label>Gender</label>
+        <div class="pill-group">
+          <button type="button" class="pill" data-gender="male">Male</button>
+          <button type="button" class="pill" data-gender="female">Female</button>
+        </div>
+        <div class="error-msg">Choose one.</div>
+      </div>
+      <div class="panel-actions"><span></span><button class="btn btn--primary" data-next="2">Continue</button></div>
+    </section>
+
+    <!-- STEP 2: Health -->
+    <section class="step-panel" data-step="2">
+      <div class="panel-eyebrow mono">Step 2 of 5</div>
+      <h2 class="panel-title">How serious is it?</h2>
+      <p class="panel-hint">This tells the team how fast to respond.</p>
+      <div class="health-stack" id="field-health">
+        <button type="button" class="health-card" data-value="critical"><span class="dot"></span><span class="body"><strong>Critical</strong><span>Life-threatening. Needs help right away.</span></span></button>
+        <button type="button" class="health-card" data-value="moderate"><span class="dot"></span><span class="body"><strong>Moderate</strong><span>Serious but stable. Needs care soon.</span></span></button>
+        <button type="button" class="health-card" data-value="low"><span class="dot"></span><span class="body"><strong>Low</strong><span>Minor issue. Can wait a short while.</span></span></button>
+      </div>
+      <div class="error-msg" id="health-error">Choose the patient's condition.</div>
+
+      <div class="disease-field" id="diseaseField">
+        <div class="field" id="field-disease" style="margin-bottom:0;">
+          <label for="disease">Give detailed information about the patient's disease</label>
+          <p class="important-note">Very important — describe the symptoms clearly, this is what the medical team reads first.</p>
+          <textarea id="disease" rows="4" placeholder="e.g. sudden chest pain since 20 minutes, breathless, patient is diabetic, took no medicine yet..."></textarea>
+          <div class="voice-wrap">
+            <button type="button" class="voice-btn" id="voiceBtn" title="Speak to describe symptoms" aria-label="Voice input">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <span class="voice-label" id="voiceLabel">Tap to speak symptoms in any language</span>
+          </div>
+          <div class="error-msg">Describe the patient's condition in detail.</div>
+        </div>
+      </div>
+
+      <button class="sos-btn" id="sosBtn" type="button">
+        <span>🚨 CLICK THIS FOR IMMEDIATE REQUEST FOR AMBULANCE</span>
+        <span class="sos-sub">Your location will be sent automatically</span>
+      </button>
+
+      <div class="panel-actions"><button class="btn btn--ghost" data-back="1">Back</button><button class="btn btn--primary" data-next="3">Continue</button></div>
+    </section>
+
+    <!-- STEP 3: Phone -->
+    <section class="step-panel" data-step="3">
+      <div class="panel-eyebrow mono">Step 3 of 5</div>
+      <h2 class="panel-title">Where can we reach you?</h2>
+      <p class="panel-hint">The response team will call this number when they're close.</p>
+      <div class="field" id="field-phone">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel">
+        <div class="error-msg">Enter a valid phone number.</div>
+      </div>
+      <div class="panel-actions"><button class="btn btn--ghost" data-back="2">Back</button><button class="btn btn--primary" data-next="4">Continue</button></div>
+    </section>
+
+    <!-- STEP 4: Location -->
+    <section class="step-panel" data-step="4">
+      <div class="panel-eyebrow mono">Step 4 of 5</div>
+      <h2 class="panel-title">Share your location</h2>
+      <p class="panel-hint">This helps the team find you in the crowd.</p>
+      <div class="loc-option">
+        <h3>Click to share your live location</h3>
+        <p class="important-note">Very important — this is how the team finds you. Nothing to type, no need to go anywhere else.</p>
+        <button class="btn btn--primary btn--block" id="btnGeo">Click to share your live location</button>
+        <div class="loc-status" id="geoStatus"></div>
+      </div>
+      <div class="field" id="field-surroundings" style="margin-top:16px;">
+        <label for="surroundings">More info about your surroundings <span style="color:var(--ink-soft);font-weight:400;font-size:12px;">(Optional)</span></label>
+        <textarea id="surroundings" rows="3" placeholder="e.g. near the main pandal, behind the food stall row, next to the yellow tent..."></textarea>
+      </div>
+      <p class="skip-line">Can't share location right now? <button type="button" id="skipLoc">Continue without it</button> — the team will call to confirm where you are.</p>
+      <div class="panel-actions"><button class="btn btn--ghost" data-back="3">Back</button><button class="btn btn--primary" data-next="5">Continue</button></div>
+    </section>
+
+    <!-- STEP 5: Send -->
+    <section class="step-panel" data-step="5">
+      <div class="panel-eyebrow mono">Step 5 of 5</div>
+      <h2 class="panel-title">Send your request</h2>
+      <p class="panel-hint">Choose what the patient needs. Help is notified the moment you tap.</p>
+      <div class="request-grid">
+        <button class="request-btn medicine" id="reqMedicine" type="button">
+          <span class="ripple" aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M10.5 20.5 3.5 13.5a5 5 0 1 1 7-7l1 1 1-1a5 5 0 1 1 7 7l-7 7a1.4 1.4 0 0 1-2 0Z"/><path d="M8 12l1.5 1.5L12 11l1.5 2.5L15 12"/></svg>
+          <strong>Request medicine</strong><span>Non-emergency supply</span>
+        </button>
+        <button class="request-btn ambulance" id="reqAmbulance" type="button">
+          <span class="ripple" aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 16V8a1 1 0 0 1 1-1h9v9H4a1 1 0 0 1-1-1Z"/><path d="M13 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/><path d="M8 7.5V11M6 9.5h4"/></svg>
+          <strong>Request ambulance</strong><span>Urgent, needs transport</span>
+        </button>
+      </div>
+      <div class="panel-actions"><button class="btn btn--ghost" data-back="4">Back</button><span></span></div>
+    </section>
+
+    <!-- CONFIRMATION -->
+    <section class="confirm-panel" id="confirmPanel" hidden>
+      <span class="badge mono" id="confirmBadge"><span class="blip"></span> <span id="confirmBadgeText">PENDING</span></span>
+      <h2>Your request has been received</h2>
+      <p class="lede" id="confirmLede">Your request will be accepted shortly. A response team member is being notified now.</p>
+      <div class="summary-card" id="summaryCard"></div>
+      <div class="team-note" id="confirmNote" style="display:none;background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.14);border-radius:12px;padding:12px 14px;text-align:left;margin-bottom:22px;"></div>
+      <button class="btn btn--primary" id="resetBtn">Submit another request</button>
+      <div style="margin-top:10px;"><button class="btn btn--ghost" id="viewMineBtn" style="border-color:rgba(251,247,237,0.25);color:var(--paper);">View my requests</button></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ===================== MY REQUESTS ===================== -->
+<main class="mine-wrap" id="mineWrap">
+  <div class="step-panel is-active">
+    <div class="panel-eyebrow mono">Your history</div>
+    <h2 class="panel-title" style="margin-bottom:4px;">My requests</h2>
+    <p class="panel-hint">Tied to this phone/browser. Status updates automatically once the team responds.</p>
+    <div id="myRequestsList"></div>
+    <div class="panel-actions"><button class="btn btn--ghost" id="backToFormBtn">← New request</button><span></span></div>
+  </div>
+</main>
+
+<!-- SOS confirm overlay -->
+<div class="overlay" id="sosOverlay">
+  <div class="modal">
+    <h2>🚨 SOS Emergency</h2>
+    <p>Your live location will be captured and sent immediately to the nearest ambulance team. This is for life-threatening situations only.</p>
+    <button class="btn btn--danger btn--block" id="sosConfirm" style="margin-bottom:10px;">SEND SOS NOW</button>
+    <button class="btn btn--ghost btn--block" id="sosCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- SOS progress overlay -->
+<div class="overlay" id="sosProgressOverlay">
+  <div class="modal">
+    <h2 style="color:var(--ink);">Sending your SOS</h2>
+    <ul class="sos-progress-list">
+      <li id="sosStepLoc">📍 Getting your live location…</li>
+      <li id="sosStepPhone">📞 Waiting for your phone number</li>
+      <li id="sosStepSend">🚑 Sending request to the team</li>
+    </ul>
+    <div class="field" id="sosPhoneField" style="display:none;">
+      <label for="sosPhoneInput">Your phone number</label>
+      <input type="tel" id="sosPhoneInput" placeholder="10-digit mobile number" inputmode="numeric">
+    </div>
+    <button class="btn btn--danger btn--block" id="sosSendBtn" style="display:none;">Send SOS</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>Kumbh Mela Medicinal Help · School project demo — not a real emergency service.</footer>
+
+<script>
+(function(){
+  /* ---------------------------------------------------------
+     Shared "database" — localStorage, so this site and the
+     owner site can sync when opened from the same address
+     (e.g. the same GitHub Pages site, in two tabs).
+     --------------------------------------------------------- */
+  const DB_KEY = "kumbh_mela_db_v1";
+  function dbRead(){
+    try{
+      const raw = localStorage.getItem(DB_KEY);
+      if(!raw) return { requests: [], ownerSettings: { phone: "" } };
+      const p = JSON.parse(raw);
+      if(!Array.isArray(p.requests)) p.requests = [];
+      if(!p.ownerSettings) p.ownerSettings = { phone:"" };
+      return p;
+    }catch(e){ return { requests: [], ownerSettings: { phone: "" } }; }
+  }
+  function dbWrite(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  function dbAddRequest(req){
+    const db = dbRead();
+    req.id = "req_" + Date.now() + "_" + Math.floor(Math.random()*1000);
+    req.createdAt = Date.now(); req.updatedAt = Date.now();
+    req.status = "pending";
+    db.requests.unshift(req);
+    dbWrite(db);
+    return req;
+  }
+  function getOwnerPhone(){ return dbRead().ownerSettings.phone || ""; }
+
+  // anonymous per-device id, so "my requests" works with no sign-up
+  let deviceId = localStorage.getItem("kumbh_device_id");
+  if(!deviceId){ deviceId = "dev_" + Date.now() + "_" + Math.floor(Math.random()*100000); localStorage.setItem("kumbh_device_id", deviceId); }
+
+  const state = { name:"", dob:"", gender:"", health:"", disease:"", phone:"", location:null, surroundings:"" };
+
+  function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("is-shown");
+    setTimeout(() => t.classList.remove("is-shown"), 3200);
+  }
+
+  /* ---------- view switching (New request <-> My requests) ---------- */
+  const wizardWrap = document.getElementById("wizardWrap");
+  const mineWrap = document.getElementById("mineWrap");
+  function showMine(){ wizardWrap.style.display = "none"; mineWrap.classList.add("is-active"); renderMyRequests(); }
+  function showForm(){ mineWrap.classList.remove("is-active"); wizardWrap.style.display = "grid"; }
+  document.getElementById("toMineBtn").addEventListener("click", showMine);
+  document.getElementById("backToFormBtn").addEventListener("click", showForm);
+  document.getElementById("viewMineBtn").addEventListener("click", showMine);
+
+  /* ---------- wizard navigation ---------- */
+  const railBtns = document.querySelectorAll(".rail-btn");
+  const panels = document.querySelectorAll(".step-panel");
+  const confirmPanel = document.getElementById("confirmPanel");
+  const diseaseField = document.getElementById("diseaseField");
+  const geoStatus = document.getElementById("geoStatus");
+  const sosBtn = document.getElementById("sosBtn");
+
+  function showStep(n){
+    panels.forEach(p => { if(p.dataset.step) p.classList.toggle("is-active", +p.dataset.step === n); });
+    railBtns.forEach(b => {
+      const s = +b.parentElement.dataset.step;
+      b.parentElement.classList.toggle("is-current", s === n);
+      b.parentElement.classList.toggle("is-done", s < n);
+    });
+    if(n === 4 && !state.location) autoDetectLocation();
+  }
+  document.querySelectorAll("[data-back]").forEach(btn => btn.addEventListener("click", () => showStep(+btn.dataset.back)));
+
+  function validate(target){
+    if(target >= 2){
+      if(!document.getElementById("fullName").value.trim()){ document.getElementById("field-name").classList.add("has-error"); return false; }
+      document.getElementById("field-name").classList.remove("has-error");
+    }
+    if(target >= 3){
+      if(!state.health){ document.getElementById("health-error").style.display = "block"; return false; }
+      document.getElementById("health-error").style.display = "none";
+      if(state.health && !state.disease.trim()){ document.getElementById("field-disease").classList.add("has-error"); return false; }
+      document.getElementById("field-disease").classList.remove("has-error");
+    }
+    if(target >= 4){
+      if(!document.getElementById("phone").value.trim()){ document.getElementById("field-phone").classList.add("has-error"); return false; }
+      document.getElementById("field-phone").classList.remove("has-error");
+    }
+    return true;
+  }
+  function gatherData(){
+    state.name = document.getElementById("fullName").value.trim();
+    state.dob = document.getElementById("dob").value;
+    state.phone = document.getElementById("phone").value.trim();
+    state.disease = document.getElementById("disease").value.trim();
+    state.surroundings = document.getElementById("surroundings").value.trim();
+  }
+  document.querySelectorAll("[data-next]").forEach(btn => btn.addEventListener("click", () => {
+    gatherData();
+    const target = +btn.dataset.next;
+    if(!validate(target)) return;
+    showStep(target);
+  }));
+  railBtns.forEach(btn => btn.addEventListener("click", () => { if(btn.parentElement.classList.contains("is-done")) showStep(+btn.dataset.goto); }));
+
+  document.querySelectorAll(".pill").forEach(p => p.addEventListener("click", () => {
+    document.querySelectorAll(".pill").forEach(x => x.classList.remove("is-selected"));
+    p.classList.add("is-selected"); state.gender = p.dataset.gender;
+    document.getElementById("field-gender").classList.remove("has-error");
+  }));
+
+  document.querySelectorAll(".health-card").forEach(c => c.addEventListener("click", () => {
+    document.querySelectorAll(".health-card").forEach(x => x.classList.remove("is-selected"));
+    c.classList.add("is-selected"); state.health = c.dataset.value;
+    diseaseField.classList.add("is-shown");
+    document.getElementById("health-error").style.display = "none";
+    sosBtn.classList.toggle("is-visible", state.health === "critical");
+  }));
+
+  /* ---------- location, step 4 ---------- */
+  function autoDetectLocation(){
+    if(!navigator.geolocation){ geoStatus.className = "loc-status"; geoStatus.textContent = "Your browser does not support location sharing."; return; }
+    geoStatus.className = "loc-status"; geoStatus.textContent = "Detecting your location…";
+    navigator.geolocation.getCurrentPosition(
+      pos => { state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude }; geoStatus.className = "loc-status ok"; geoStatus.textContent = "Location captured ✓ — lat " + state.location.lat.toFixed(4) + ", lng " + state.location.lng.toFixed(4); },
+      () => { geoStatus.className = "loc-status"; geoStatus.textContent = ""; },
+      { enableHighAccuracy:true, timeout:8000, maximumAge:0 }
+    );
+  }
+  document.getElementById("btnGeo").addEventListener("click", () => {
+    geoStatus.className = "loc-status"; geoStatus.textContent = "Locating…";
+    if(!navigator.geolocation){ geoStatus.className = "loc-status err"; geoStatus.textContent = "Your browser does not support location sharing."; return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => { state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude }; geoStatus.className = "loc-status ok"; geoStatus.textContent = "Location captured ✓ — lat " + state.location.lat.toFixed(4) + ", lng " + state.location.lng.toFixed(4); },
+      err => { geoStatus.className = "loc-status err"; geoStatus.textContent = ({1:"You denied the permission. Please allow it in your browser settings.",2:"Location unavailable. Try again or use the skip option.",3:"Request timed out. Try again."})[err.code] || "Something went wrong."; },
+      { enableHighAccuracy:true, timeout:12000, maximumAge:0 }
+    );
+  });
+  document.getElementById("skipLoc").addEventListener("click", () => {
+    state.location = "skipped";
+    geoStatus.className = "loc-status"; geoStatus.textContent = "Skipping location — the team will call to confirm.";
+    showStep(5);
+  });
+
+  /* ---------- voice input (mic permission asked on tap) ---------- */
+  const voiceBtn = document.getElementById("voiceBtn");
+  const voiceLabel = document.getElementById("voiceLabel");
+  const diseaseTextarea = document.getElementById("disease");
+  let recognition = null, isListening = false;
+  function initVoiceRecognition(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ voiceBtn.style.display = "none"; voiceLabel.textContent = "Voice input not supported in this browser"; return false; }
+    recognition = new SR();
+    recognition.continuous = false; recognition.interimResults = true;
+    recognition.onstart = () => { isListening = true; voiceBtn.classList.add("is-listening"); voiceLabel.textContent = "Listening… speak in any language"; };
+    recognition.onresult = (e) => { let t=""; for(let i=e.resultIndex;i<e.results.length;i++) t += e.results[i][0].transcript; diseaseTextarea.value = t; voiceLabel.textContent = "Capturing: " + t.substring(0,60) + (t.length>60?"…":""); };
+    recognition.onend = () => { isListening = false; voiceBtn.classList.remove("is-listening"); voiceLabel.textContent = "Tap to speak symptoms in any language"; };
+    recognition.onerror = (e) => { isListening = false; voiceBtn.classList.remove("is-listening"); voiceLabel.textContent = e.error === "not-allowed" ? "Microphone access denied. Please allow it in your browser." : (e.error === "no-speech" ? "No speech detected. Tap to try again." : "Error: " + e.error + ". Tap to try again."); };
+    return true;
+  }
+  initVoiceRecognition();
+  voiceBtn.addEventListener("click", () => {
+    if(!recognition){ if(initVoiceRecognition()) voiceBtn.click(); return; }
+    if(isListening) recognition.stop(); else { try{ recognition.start(); }catch(e){ voiceLabel.textContent = "Please try again."; } }
+  });
+
+  /* ---------- submit normal request ---------- */
+  function row(k,v){ return '<div class="summary-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+  let lastRequestId = null;
+  function submitNormalRequest(type, label){
+    gatherData();
+    const created = dbAddRequest({
+      type: type, deviceId: deviceId,
+      patient: { name: state.name, dob: state.dob, gender: state.gender, health: state.health, disease: state.disease, surroundings: state.surroundings },
+      phone: state.phone,
+      location: (state.location && state.location !== "skipped") ? state.location : null
+    });
+    lastRequestId = created.id;
+    document.getElementById("summaryCard").innerHTML = [
+      row("Request", label),
+      row("Patient", escapeHtml(state.name) || "—"),
+      row("Condition", escapeHtml((state.health||"—") + (state.disease ? " · " + state.disease : ""))),
+      row("Phone", escapeHtml(state.phone) || "—"),
+      row("Location", (state.location && state.location !== "skipped") ? state.location.lat.toFixed(3)+", "+state.location.lng.toFixed(3) : "Not shared"),
+      state.surroundings ? row("Surroundings", escapeHtml(state.surroundings)) : ""
+    ].filter(Boolean).join("");
+    document.querySelector('.wizard .panel-wrap').querySelectorAll(".step-panel").forEach(p => { if(p !== confirmPanel) p.classList.remove("is-active"); });
+    confirmPanel.hidden = false;
+    updateConfirmStatus();
+  }
+  document.getElementById("reqMedicine").addEventListener("click", () => submitNormalRequest("medicine","Medicine"));
+  document.getElementById("reqAmbulance").addEventListener("click", () => submitNormalRequest("ambulance","Ambulance"));
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    Object.assign(state, { name:"", dob:"", gender:"", health:"", disease:"", phone:"", location:null, surroundings:"" });
+    document.getElementById("fullName").value = ""; document.getElementById("dob").value = "";
+    document.getElementById("disease").value = ""; document.getElementById("phone").value = "";
+    document.getElementById("surroundings").value = "";
+    document.querySelectorAll(".pill").forEach(x => x.classList.remove("is-selected"));
+    document.querySelectorAll(".health-card").forEach(x => x.classList.remove("is-selected"));
+    diseaseField.classList.remove("is-shown");
+    sosBtn.classList.remove("is-visible");
+    geoStatus.textContent = "";
+    document.querySelectorAll(".field").forEach(f => f.classList.remove("has-error"));
+    confirmPanel.hidden = true;
+    showStep(1);
+  });
+
+  /* ---------- SOS flow ---------- */
+  const sosOverlay = document.getElementById("sosOverlay");
+  const sosProgressOverlay = document.getElementById("sosProgressOverlay");
+  const sosStepLoc = document.getElementById("sosStepLoc");
+  const sosStepPhone = document.getElementById("sosStepPhone");
+  const sosStepSend = document.getElementById("sosStepSend");
+  const sosPhoneField = document.getElementById("sosPhoneField");
+  const sosSendBtn = document.getElementById("sosSendBtn");
+  let sosLocation = null;
+
+  sosBtn.addEventListener("click", () => { gatherData(); sosOverlay.classList.add("is-active"); });
+  document.getElementById("sosCancel").addEventListener("click", () => sosOverlay.classList.remove("is-active"));
+  document.getElementById("sosConfirm").addEventListener("click", () => {
+    sosOverlay.classList.remove("is-active");
+    sosLocation = null;
+    sosStepLoc.className = "is-active"; sosStepPhone.className = ""; sosStepSend.className = "";
+    sosPhoneField.style.display = "none"; sosSendBtn.style.display = "none";
+    sosProgressOverlay.classList.add("is-active");
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos => { sosLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude }; sosLocationDone(); },
+        () => { sosLocation = null; sosLocationDone(); },
+        { enableHighAccuracy:true, timeout:8000 }
+      );
+    } else { sosLocationDone(); }
+  });
+  function sosLocationDone(){
+    sosStepLoc.className = "is-done";
+    sosStepPhone.className = "is-active";
+    sosPhoneField.style.display = "block";
+    sosSendBtn.style.display = "block";
+    if(state.phone) document.getElementById("sosPhoneInput").value = state.phone;
+  }
+  sosSendBtn.addEventListener("click", () => {
+    const phone = document.getElementById("sosPhoneInput").value.trim();
+    if(!phone){ document.getElementById("sosPhoneInput").focus(); return; }
+    sosStepPhone.className = "is-done";
+    sosStepSend.className = "is-active";
+    state.phone = phone;
+    setTimeout(() => {
+      const created = dbAddRequest({
+        type: "sos", deviceId: deviceId,
+        patient: { name: state.name || "Not provided", dob: state.dob, gender: state.gender, health: "critical", disease: state.disease || "Not specified", surroundings: state.surroundings || "" },
+        phone: phone, location: sosLocation
+      });
+      lastRequestId = created.id;
+      sosStepSend.className = "is-done";
+      setTimeout(() => {
+        sosProgressOverlay.classList.remove("is-active");
+        showMine();
+        showToast("SOS sent — help is on the way.");
+      }, 500);
+    }, 500);
+  });
+
+  /* ---------- status labels ---------- */
+  function statusMeta(status){
+    switch(status){
+      case "accepted": return { label:"Accepted", cls:"accepted", lede:"Your request has been accepted. The team is preparing to head your way." };
+      case "on_the_way": return { label:"On the way", cls:"on_the_way", lede:"The team is on the way to your location." };
+      case "completed": return { label:"Completed", cls:"completed", lede:"This request has been marked completed by the team." };
+      case "declined": return { label:"Declined", cls:"declined", lede:"This request was declined. Please send a new request or ask the team directly." };
+      default: return { label:"Pending", cls:"pending", lede:"Your request will be accepted shortly. A response team member is being notified now." };
+    }
+  }
+
+  /* ---------- My requests ---------- */
+  function renderMyRequests(){
+    const db = dbRead();
+    const mine = db.requests.filter(r => r.deviceId === deviceId);
+    const wrap = document.getElementById("myRequestsList");
+    if(mine.length === 0){ wrap.innerHTML = '<p class="empty-note">No requests yet — go to "New request" to send one.</p>'; return; }
+    const ownerPhone = getOwnerPhone();
+    wrap.innerHTML = mine.map(r => {
+      const meta = statusMeta(r.status);
+      const sosCls = r.type === "sos" ? " sos" : "";
+      const hasTeamContact = r.status === "accepted" || r.status === "on_the_way" || r.status === "completed";
+      return '<div class="request-card '+meta.cls+sosCls+'">' +
+        '<div class="request-card-top"><span class="mono" style="font-size:11px;color:var(--ink-soft);">'+r.type.toUpperCase()+'</span><span class="status-badge '+meta.cls+'">'+meta.label+'</span></div>' +
+        '<div><strong>'+escapeHtml(r.patient.name||"—")+'</strong> · '+escapeHtml(r.patient.health||"—")+'</div>' +
+        '<div style="font-size:12.5px;color:var(--ink-soft);">'+escapeHtml(r.patient.disease||"")+'</div>' +
+        (hasTeamContact ? '<div class="owner-contact">Team contact: <a href="tel:'+escapeHtml(ownerPhone)+'">'+(escapeHtml(ownerPhone)||"not set yet")+'</a></div>' : '') +
+        (r.note ? '<div class="team-note"><strong>Team update:</strong> '+escapeHtml(r.note)+'</div>' : '') +
+        '</div>';
+    }).join("");
+  }
+  window.addEventListener("storage", (e) => { if(e.key === DB_KEY && mineWrap.classList.contains("is-active")) renderMyRequests(); });
+  setInterval(() => { if(mineWrap.classList.contains("is-active")) renderMyRequests(); }, 2000);
+
+  /* ---------- confirm panel live status ---------- */
+  function updateConfirmStatus(){
+    if(!lastRequestId || confirmPanel.hidden) return;
+    const db = dbRead();
+    const r = db.requests.find(x => x.id === lastRequestId);
+    if(!r) return;
+    const meta = statusMeta(r.status);
+    document.getElementById("confirmBadgeText").textContent = meta.label.toUpperCase();
+    document.getElementById("confirmLede").textContent = meta.lede;
+    const noteEl = document.getElementById("confirmNote");
+    if(r.note){ noteEl.style.display = "block"; noteEl.innerHTML = '<strong style="color:var(--marigold);">Team update:</strong> ' + escapeHtml(r.note); }
+    else { noteEl.style.display = "none"; }
+  }
+  setInterval(updateConfirmStatus, 2000);
+
+  /* ---------- sound + on-screen alert when a status changes ---------- */
+  function beep(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = 660;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.18, ctx.currentTime);
+      o.start(); o.stop(ctx.currentTime + 0.4);
+    }catch(e){}
+  }
+  const statusAlertBanner = document.getElementById("statusAlertBanner");
+  document.getElementById("statusAlertDismiss").addEventListener("click", () => statusAlertBanner.classList.remove("is-active"));
+  function showStatusAlert(msg){
+    document.getElementById("statusAlertText").textContent = msg;
+    statusAlertBanner.classList.add("is-active");
+    beep();
+    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    setTimeout(() => statusAlertBanner.classList.remove("is-active"), 6000);
+  }
+
+  let knownStatuses = {};
+  let statusWatchReady = false;
+  function checkStatusChanges(){
+    const db = dbRead();
+    const mine = db.requests.filter(r => r.deviceId === deviceId);
+    mine.forEach(r => {
+      const prev = knownStatuses[r.id];
+      if(statusWatchReady && prev && prev !== r.status){
+        const meta = statusMeta(r.status);
+        const label = escapeHtml(r.patient && r.patient.name ? r.patient.name : "Your request");
+        showStatusAlert(label + "'s " + r.type + " request is now " + meta.label.toUpperCase() + (r.note ? " — " + r.note : ""));
+        showToast("Status updated: " + meta.label);
+      }
+      knownStatuses[r.id] = r.status;
+    });
+    statusWatchReady = true;
+  }
+  setInterval(checkStatusChanges, 2000);
+  checkStatusChanges(); // seed known statuses without alerting on first load
+
+  showStep(1);
+})();
+</script>
+</body>
+</html>
